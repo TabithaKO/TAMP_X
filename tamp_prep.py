@@ -7,6 +7,9 @@ import argparse
 import os, sys
 import subprocess
 
+global commands
+commands = []
+
 def organize_tuples(str_list):
     try:
         remove_braces = (str_list.split("[")[1]).split("]")[0]
@@ -49,6 +52,7 @@ def get_data(file):
 # At each step we'll need to determine what action to take: forward, backward, left, right
 
 def step_look_up(agent, curr_step, next_step):
+    global commands
     # foward (assuming forward in the y axis)
     if tuple(np.subtract(curr_step, next_step)) == (0, 1):
         # go forward command
@@ -58,8 +62,8 @@ def step_look_up(agent, curr_step, next_step):
         dist = " \"{distance: 0.3,max_translation_speed: 1}\""
         agent_spec = "/"+agent.agent_name+"/drive_distance irobot_create_msgs/action/DriveDistance"
         full_command = "ros2 action send_goal " + agent_spec + dist
-        print(full_command)
-        os.system(full_command)  
+        commands.append(full_command)
+        #os.system(full_command)  
 
         print("-"*20)
         print("Agent:", agent.agent_name,"moved forward!")
@@ -73,14 +77,14 @@ def step_look_up(agent, curr_step, next_step):
         angle = " \"{angle: 3.14,max_rotation_speed: 6}\""
         agent_spec = "/"+agent.agent_name+"/rotate_angle irobot_create_msgs/action/RotateAngle"
         full_command = "ros2 action send_goal " + agent_spec + angle
-        print(full_command)
-        os.system(full_command)  
+        commands.append(full_command)
+        #os.system(full_command)  
 
         dist = " \"{distance: 0.3,max_translation_speed: 1}\""
         agent_spec = "/"+agent.agent_name+"/drive_distance irobot_create_msgs/action/DriveDistance"
         full_command = "ros2 action send_goal " + agent_spec + dist
-        print(full_command)
-        os.system(full_command)  
+        commands.append(full_command)
+        #os.system(full_command)  
 
         print("-"*20)
         print("Agent:", agent.agent_name,"moved backwards!")
@@ -94,14 +98,14 @@ def step_look_up(agent, curr_step, next_step):
         angle = " \"{angle: 1.57,max_rotation_speed: 6}\""
         agent_spec = "/"+agent.agent_name+"/rotate_angle irobot_create_msgs/action/RotateAngle"
         full_command = "ros2 action send_goal " + agent_spec + angle
-        print(full_command)
+        commands.append(full_command)
         os.system(full_command) 
 
         dist = " \"{distance: 0.3,max_translation_speed: 0.3}\""
         agent_spec = "/"+agent.agent_name+"/drive_distance irobot_create_msgs/action/DriveDistance"
         full_command = "ros2 action send_goal " + agent_spec + dist
-        print(full_command)
-        os.system(full_command)  
+        commands.append(full_command)
+        #os.system(full_command)  
 
         print("-"*20)
         print("Agent:", agent.agent_name,"turned right!")
@@ -115,14 +119,14 @@ def step_look_up(agent, curr_step, next_step):
         angle = " \"{angle: 4.71,max_rotation_speed: 6}\""
         agent_spec = "/"+agent.agent_name+"/rotate_angle irobot_create_msgs/action/RotateAngle"
         full_command = "ros2 action send_goal " + agent_spec + angle
-        print(full_command)
+        commands.append(full_command)
         os.system(full_command) 
 
         dist = " \"{distance:0.1,max_translation_speed:0.3}\""
         agent_spec = "/"+agent.agent_name+"/drive_distance irobot_create_msgs/action/DriveDistance"
         full_command = "ros2 action send_goal " + agent_spec + dist
-        print(full_command)
-        os.system(full_command)  
+        commands.append(full_command)
+        #os.system(full_command)  
 
         print("-"*20)
         print("Agent:", agent.agent_name,"turned left!")
@@ -135,8 +139,10 @@ def step_look_up(agent, curr_step, next_step):
         loc = " \"{achieve_goal_heading: true,goal_pose:{pose:{position:{x: 0,y: 0.2,z: 0.0}, orientation:{x: 0.0,y: 0.0, z: 0.0, w: 1.0}}}}\""
         agent_spec = "/"+agent.agent_name+"/navigate_to_position irobot_create_msgs/action/NavigateToPosition"
         full_command = "ros2 action send_goal " + agent_spec + loc
-        print(full_command)
-        os.system(full_command)  
+        commands.append(full_command)
+        df = pd.DataFrame(commands)
+        df.to_csv(agent.agent_name+".csv", header="commands")
+        #os.system(full_command)  
 
         print("-"*20)
         print("Agent:", agent.agent_name,"went home!")
@@ -194,7 +200,7 @@ def step(agent):
 def main(args):
     agent_1, agent_2 = set_up(args.filename)
     step(agent_1)
-    step(agent_2)
+    # step(agent_2)
     print("!!! DONE WITH SIMULATION!!!")
 
 if __name__ == '__main__':
